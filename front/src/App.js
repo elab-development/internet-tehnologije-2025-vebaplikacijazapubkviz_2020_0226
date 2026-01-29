@@ -5,7 +5,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -13,6 +14,8 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <main className="max-w-7xl mx-auto px-4 py-10">
           <Routes>
+             <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

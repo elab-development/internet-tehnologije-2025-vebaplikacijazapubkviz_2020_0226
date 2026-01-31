@@ -8,6 +8,7 @@ import {
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Sezone from "./pages/Sezone";
+import Dogadjaji from "./pages/Dogadjaji";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
              <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/sezone" element={<Sezone />} />
+            <Route path="/sezone/:id/dogadjaji" element={<Dogadjaji />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

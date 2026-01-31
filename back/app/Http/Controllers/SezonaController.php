@@ -112,5 +112,51 @@ class SezonaController extends Controller
     }
     
 
+     public function rangListaSezone(Request $request, $sezona_id)
+    {
+        try {
+          
+           
+            $sezona = Sezona::findOrFail($sezona_id);
+            
+            $timovi = Tim::whereHas('dogadjaji', function ($query) use ($sezona_id) {
+                $query->where('sezona_id', $sezona_id);
+            })
+            ->withSum(['dogadjaji as total_score' => function ($query) use ($sezona_id) {
+                $query->where('sezona_id', $sezona_id);
+            }], 'dogadjaj_tim.score')
+            ->orderBy('total_score', 'desc')
+            ->get();
+
+            $timovi->each(function ($tim) {
+               $pivotData = [
+                    'score' => $tim->total_score ?? 0,
+                    'dogadjaj_id' => null,
+             ];
+             $pivot = $tim->newPivot($tim, $pivotData, 'dogadjaj_tim', true);
+             $tim->setRelation('pivot', $pivot);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Generalni plasman za sezonu uspešno učitan.',
+                'sezona' => $sezona->pocetak->format('d.m.Y') . ' / ' . $sezona->kraj->format('d.m.Y'),
+                'data' => DogadjajTimResource::collection($timovi),
+            ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sezona nije pronađena.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Došlo je do greške prilikom obrade zahteva.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
    
 } 

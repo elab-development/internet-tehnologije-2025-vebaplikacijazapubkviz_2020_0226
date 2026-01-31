@@ -21,7 +21,7 @@ class SezonaResource extends JsonResource
             'id' => $this->id,
             'period' => $this->pocetak->format('d.m.Y') . ' - ' . $this->kraj->format('d.m.Y'),
             'status' => $this->kraj->greaterThan($danas) ? 'aktivna' : 'zavrsena',
-            
+            'dogadjaji' => route('dogadjaji.index', ['sezona_id' => $this->id]),
         ];
     }
 }

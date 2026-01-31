@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Sezone from "./pages/Sezone";
 import Dogadjaji from "./pages/Dogadjaji";
+import RangListaSezone from "./pages/RangListaSezone";
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/sezone" element={<Sezone />} />
             <Route path="/sezone/:id/dogadjaji" element={<Dogadjaji />} />
+             <Route
+              path="/sezone/:id/rang-lista"
+              element={<RangListaSezone />}
+            />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

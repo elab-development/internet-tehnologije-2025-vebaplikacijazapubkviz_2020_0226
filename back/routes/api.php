@@ -16,7 +16,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::middleware('auth:sanctum')->group(function () {
      Route::get('/sezone',[SezonaController::class,'index']);
      Route::get('/sezone/{sezona_id}/rang',[SezonaController::class,'rangListaSezone']);
-       Route::get('/dogadjaji',[DogadjajController::class,'index'])->name('dogadjaji.index');
+     Route::get('/dogadjaji',[DogadjajController::class,'index'])->name('dogadjaji.index');
+     Route::get('/dogadjaji/{dogadjaj_id}/rang', [DogadjajController::class, 'rangListaDogadjaja'])->name('dogadjaj.rang_lista');
+
 
 });
 

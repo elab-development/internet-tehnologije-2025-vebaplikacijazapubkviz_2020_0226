@@ -28,7 +28,7 @@ class DogadjajResource extends JsonResource
             'broj_timova' =>  $this->timovi?$this->timovi->count():0,
             'omiljeni'=>$tim? $tim->omiljeniDogadjaji->contains($this->id):false,
             'prijavljen'=>$tim?$tim->dogadjaji->contains($this->id):false,
-           
+            'rang_lista' => route('dogadjaj.rang_lista', $this->id),
         ];
     }
 }

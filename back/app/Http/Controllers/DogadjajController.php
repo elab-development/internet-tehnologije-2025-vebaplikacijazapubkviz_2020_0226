@@ -93,7 +93,34 @@ class DogadjajController extends Controller
         }
     }
 
-   
+    public function rangListaDogadjaja(Request $request, $dogadjaj_id)
+    {
+        try {
+           
+            $dogadjaj = Dogadjaj::with(['timovi' => function ($query) {
+                $query->orderBy('score', 'desc'); 
+            }])->findOrFail($dogadjaj_id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Rang lista za događaj "' . $dogadjaj->naziv . '" uspešno učitana.',
+                'data' => DogadjajTimResource::collection($dogadjaj->timovi),
+            ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Događaj nije pronađen.',
+            ], 404); 
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Došlo je do greške prilikom obrade zahteva.',
+                'error' => $e->getMessage(),
+            ], 500); 
+        }
+    }
+
    
 
 

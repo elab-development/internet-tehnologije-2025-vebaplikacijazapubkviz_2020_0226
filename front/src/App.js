@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Sezone from "./pages/Sezone";
 import Dogadjaji from "./pages/Dogadjaji";
 import RangListaSezone from "./pages/RangListaSezone";
+import RangListaDogadjaja from "./pages/RangListaDogadjaja";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               path="/sezone/:id/rang-lista"
               element={<RangListaSezone />}
             />
+             <Route path="/dogadjaj/:id/rang" element={<RangListaDogadjaja />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

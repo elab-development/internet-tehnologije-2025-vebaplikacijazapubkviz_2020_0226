@@ -43,6 +43,29 @@ const Dogadjaji = () => {
     fetchDogadjaji();
   }, [samoOmiljeni, id, filterNaziv, location.state?.fetchUrl]);
 
+
+
+   const toggleFavorite = async (dogadjajId, isCurrentlyFavorite) => {
+    try {
+      if (isCurrentlyFavorite) {
+        await api.delete(`/users/dogadjaji/ukloni-iz-omiljenih/${dogadjajId}`);
+      } else {
+        await api.post(`/users/dogadjaji/dodaj-u-omiljene`, {
+          dogadjaj_id: dogadjajId,
+        });
+      }
+
+      setDogadjaji((prev) =>
+        prev.map((d) =>
+          d.id === dogadjajId ? { ...d, omiljeni: !isCurrentlyFavorite } : d
+        )
+      );
+    } catch (error) {
+      console.error("Greška sa favoritima:", error);
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-gray-50/50">
       <Navbar />
@@ -94,9 +117,11 @@ const Dogadjaji = () => {
             {dogadjaji.length > 0 ? (
               dogadjaji.map((d) => (
                 <DogadjajCard
+                 userRole={userRole}
                   key={d.id}
                   d={d}
                   onNavigateRang={() => navigate(`/dogadjaj/${d.id}/rang`)}
+                  onToggleFavorite={() => toggleFavorite(d.id, d.omiljeni)}
                 />
               ))
             ) : (

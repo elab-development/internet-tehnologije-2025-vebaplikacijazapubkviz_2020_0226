@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('/dogadjaji/{dogadjaj_id}/rang', [DogadjajController::class, 'rangListaDogadjaja'])->name('dogadjaj.rang_lista');
      Route::post('users/dogadjaji/dodaj-u-omiljene',[TimController::class,'dodajUOmiljene']);
      Route::delete('users/dogadjaji/ukloni-iz-omiljenih/{id}',[TimController::class,'ukloniIzOmiljenih']);
+     Route::post('/sezone',[SezonaController::class,'store']);
+
 
 
 });

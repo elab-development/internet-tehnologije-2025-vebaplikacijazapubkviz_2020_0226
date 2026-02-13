@@ -158,5 +158,65 @@ class SezonaController extends Controller
         }
     }
 
+
+     public function store(Request $request)
+    {
+        
+        $sezona = null;
+
+        try {
+
+            if (Auth::user()->role !== 'moderator') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Neautorizovan pristup. Samo moderatori mogu kreirati sezonu.',
+                ], 401);
+            }
+
+            
+            $request->validate([
+                'pocetak' => 'required|date|after:today',
+                'kraj' => 'required|date|after:pocetak',
+            ], [
+                'pocetak.after' => 'Sezona ne može početi u prošlosti.',
+                'kraj.after' => 'Kraj mora biti posle početka.',
+            ]);
+            
+            DB::transaction(function () use ($request, &$sezona) {
+                
+              
+                $sezona = Sezona::create([
+                    'pocetak' => $request->pocetak,
+                    'kraj' => $request->kraj,
+                ]);
+
+            }); 
+
+           
+            if ($sezona) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Uspesno dodata sezona',
+                    'data' => new SezonaResource($sezona),
+                ], 201);
+            }
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Greška pri validaciji unosa.',
+                'errors' => $e->errors(),
+            ], 422); 
+            
+        } catch (\Exception $e) {
+           
+            return response()->json([
+                'success' => false,
+                'message' => 'Došlo je do greške prilikom obrade zahteva.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
    
 } 

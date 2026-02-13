@@ -1,37 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import api from "../api";
+import React, { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import PageHeader from "../components/PageHeader";
-import BackButton from "../components/BackButton";
 import Loader from "../components/Loader";
 import DataTable from "../components/DataTable";
 import TeamRow from "../components/TeamRow";
+import Button from "../components/Button";
+import { useDogadjaji } from "../hooks/useDogadjaji";
 
 const RangListaDogadjaja = () => {
   const { id } = useParams();
-  const [podaci, setPodaci] = useState([]);
-  const [naslovDogadjaja, setNaslovDogadjaja] = useState("");
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const { podaci, naslovDogadjaja, fetchRangLista, loading } = useDogadjaji();
 
   useEffect(() => {
-    const fetchRangLista = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get(`/dogadjaji/${id}/rang`);
-        setPodaci(response.data.data);
-        const poruka = response.data.message;
-        const naziv = poruka.match(/"([^"]+)"/)?.[1] || "Rezultati Kola";
-        setNaslovDogadjaja(naziv);
-      } catch (error) {
-        console.error("Greška pri učitavanju rang liste događaja:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRangLista();
-  }, [id]);
+    fetchRangLista(id);
+  }, []);
 
   if (loading) return <Loader fullPage message="Učitavam poretke timova..." />;
 
@@ -39,7 +24,9 @@ const RangListaDogadjaja = () => {
     <div className="min-h-screen bg-gray-50/50 text-gray-900 pb-20">
       <Navbar />
       <div className="p-8 md:p-12 w-full max-w-7xl mx-auto">
-        <BackButton />
+        <Button type="secondary" onClick={() => navigate(-1)}>
+          Nazad
+        </Button>
         <PageHeader
           title="Rezultati"
           highlight="Kola"
@@ -53,22 +40,21 @@ const RangListaDogadjaja = () => {
           >
             {podaci.map((tim, index) => (
               <TeamRow
-                key={index}
+                key={tim.tim_id || index}
                 index={index}
-                logo={tim.logo}
-                name={tim.naziv_tima}
-                score={tim.score}
+                tim={tim}
               />
             ))}
           </DataTable>
         ) : (
           <div className="bg-white rounded-[3rem] p-20 text-center border-2 border-dashed border-gray-100">
-            <div className="text-5xl mb-4">🧊</div>
             <p className="text-gray-400 font-bold italic text-lg text-center w-full">
               Rezultati za ovaj događaj još uvijek nisu uneseni.
             </p>
           </div>
         )}
+
+       
       </div>
     </div>
   );

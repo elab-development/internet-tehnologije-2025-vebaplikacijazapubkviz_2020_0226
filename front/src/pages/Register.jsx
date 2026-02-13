@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import api from "../api";
+import { Link } from "react-router-dom";
 import FormInput from "../components/FormInput";
+import Button from "../components/Button";
+import { useAuth } from "../hooks/useAuth";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,63 +13,20 @@ const Register = () => {
     role: "tim",
   });
   const [logoFile, setLogoFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+
+  const { register, loading, error, setError } = useAuth();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
-
-    if (formData.password.length < 8) {
-      setError("Lozinka mora imati najmanje 8 karaktera.");
-      return;
-    }
 
     if (formData.password !== formData.password_confirmation) {
-      setError("Lozinke se ne poklapaju!");
-      return;
+      return setError("Lozinke se ne poklapaju!");
+    }
+    if (!logoFile) {
+      return setError("Logo tima je obavezan.");
     }
 
-    setLoading(true);
-
-    const data = new FormData();
-    data.append("naziv", formData.naziv);
-    data.append("email", formData.email);
-    data.append("password", formData.password);
-    data.append("role", formData.role);
-    data.append("password_confirmation", formData.password_confirmation);
-
-    if (logoFile) {
-      data.append("logo", logoFile);
-    }
-
-    try {
-      const response = await api.post("/register", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      const result = response.data;
-
-      if (result.success) {
-        localStorage.setItem("token", result.access_token);
-        localStorage.setItem("role", result.data.role);
-        localStorage.setItem("username", result.data.username);
-
-        alert("Uspešna registracija tima!");
-        navigate("/sezone");
-      }
-    } catch (err) {
-      const errorData = err.response?.data;
-      if (err.response?.status === 422 && errorData?.errors) {
-        const firstError = Object.values(errorData.errors)[0][0];
-        setError(firstError);
-      } else {
-        setError(errorData?.message || "Došlo je do greške. Pokušajte ponovo.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    await register(formData, logoFile);
   };
 
   return (
@@ -90,6 +48,7 @@ const Register = () => {
           <form onSubmit={handleRegister} className="space-y-5">
             <FormInput
               label="Naziv Tima"
+              name="naziv"
               type="text"
               required
               placeholder="Unesite Naziv Tima..."
@@ -100,6 +59,7 @@ const Register = () => {
 
             <FormInput
               label="Email"
+              name="email"
               type="email"
               required
               placeholder="Unesite Email Adresu..."
@@ -150,12 +110,9 @@ const Register = () => {
               </div>
             </div>
 
-            <button
-              disabled={loading}
-              className="w-full rounded-2xl bg-gray-900 py-5 text-xs font-black uppercase tracking-[0.3em] text-white hover:bg-indigo-600 shadow-xl transition-all active:scale-95 disabled:bg-gray-200"
-            >
-              {loading ? "Obrađujemo..." : "Registruj Tim"}
-            </button>
+            <Button loading={loading} className="w-full" type="submit">
+              Registruj Tim
+            </Button>
           </form>
 
           <div className="mt-8 text-center">

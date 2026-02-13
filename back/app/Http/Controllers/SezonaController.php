@@ -24,7 +24,7 @@ class SezonaController extends Controller
 
             $filterPocetak = $request->input('pocetak');
             $filterKraj = $request->input('kraj');
-            
+                        
           
             if ($filterPocetak || $filterKraj) {
                 
@@ -82,7 +82,7 @@ class SezonaController extends Controller
                  }
             
            
-            $sezone = $query->paginate(5);
+            $sezone = $query->paginate(6);
 
             return response()->json([
                 'success' => true,

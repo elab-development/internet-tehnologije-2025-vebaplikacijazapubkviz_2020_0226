@@ -1,37 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
 import FormInput from "../components/FormInput";
 import SezonaCard from "../components/SezonaCard";
 import Navbar from "../components/Navbar";
 import PageHeader from "../components/PageHeader";
 import Loader from "../components/Loader";
+import Pagination from "../components/Pagination";
+import EmptyState from "../components/EmptyState";
+import { useSezone } from "../hooks/useSezone";
 
 const Sezone = () => {
-  const [sezone, setSezone] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ pocetak: "", kraj: "" });
   const navigate = useNavigate();
 
+  const {
+    sezone,
+    loading,
+    filters,
+    updateFilters,
+    paginationMeta,
+    currentPage,
+    setCurrentPage,
+    fetchSezone,
+  } = useSezone();
+
+
+
   useEffect(() => {
-    const fetchSezone = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get("/sezone", {
-          params: {
-            pocetak: filters.pocetak,
-            kraj: filters.kraj,
-          },
-        });
-        setSezone(response.data.data);
-      } catch (error) {
-        console.error("Greška pri učitavanju:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchSezone();
-  }, [filters.pocetak, filters.kraj]);
+  }, [filters, currentPage]);
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -44,24 +40,21 @@ const Sezone = () => {
             highlight="Sezone"
             subtitle="Pregled Takmicenja"
           />
-
           <div className="flex flex-wrap items-end gap-4 bg-white p-6 rounded-[2.5rem] shadow-[0_10px_30px_rgba(0,0,0,0.02)] border border-gray-100">
             <div className="w-40">
               <FormInput
                 label="Od datuma"
                 type="date"
-                onChange={(e) =>
-                  setFilters({ ...filters, pocetak: e.target.value })
-                }
+                value={filters.pocetak}
+                onChange={(e) => updateFilters({ pocetak: e.target.value })}
               />
             </div>
             <div className="w-40">
               <FormInput
                 label="Do datuma"
                 type="date"
-                onChange={(e) =>
-                  setFilters({ ...filters, kraj: e.target.value })
-                }
+                value={filters.kraj}
+                onChange={(e) => updateFilters({ kraj: e.target.value })}
               />
             </div>
           </div>
@@ -69,32 +62,25 @@ const Sezone = () => {
 
         {loading ? (
           <Loader message="Ucitavanje sezona..." />
-        ) : (
+        ) : sezone.length > 0 ? (
           <>
-            {sezone.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {sezone.map((sezona) => (
-                  <SezonaCard
-                    key={sezona.id}
-                    id={sezona.id}
-                    period={sezona.period}
-                    status={sezona.status}
-                    onViewDetails={() =>
-                      navigate(`/sezone/${sezona.id}/dogadjaji`, {
-                        state: { fetchUrl: sezona.dogadjaji },
-                      })
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-[3rem] p-20 text-center border-2 border-dashed border-gray-100">
-                <p className="text-gray-400 font-bold italic">
-                  Nema pronađenih sezona za izabrani period.
-                </p>
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {sezone.map((sezona) => (
+                <SezonaCard
+                  key={sezona.id}
+                  {...sezona}
+                  onViewDetails={() =>
+                    navigate(`/sezone/${sezona.id}/dogadjaji`, {
+                      state: sezona,
+                    })
+                  }
+                />
+              ))}
+            </div>
+            <Pagination meta={paginationMeta} onPageChange={setCurrentPage} />
           </>
+        ) : (
+          <EmptyState message="Nema pronađenih sezona za izabrani period." />
         )}
       </div>
     </div>

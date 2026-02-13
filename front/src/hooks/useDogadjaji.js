@@ -1,0 +1,105 @@
+import { useState, useEffect } from "react";
+import api from "../api";
+import { useNavigate } from "react-router-dom";
+
+export const useDogadjaji = (sezonaId) => {
+  const [dogadjaji, setDogadjaji] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [paginationMeta, setPaginationMeta] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({ naziv: "", omiljeni: false });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
+  const [podaci, setPodaci] = useState([]);
+  const [naslovDogadjaja, setNaslovDogadjaja] = useState("");
+
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setFilters({ naziv: searchTerm });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const updateFilters = (newFilters) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setCurrentPage(1);
+  };
+
+  const fetchDogadjaji = async (initialFetchUrl) => {
+    setLoading(true);
+    try {
+      const response = await api.get(initialFetchUrl, {
+        params: {
+          sezona_id: sezonaId,
+          naziv: filters.naziv,
+          omiljeni: filters.omiljeni ? 1 : 0,
+          page: currentPage,
+        },
+      });
+      setDogadjaji(response.data.data);
+      setPaginationMeta(response.data.meta);
+    } catch (error) {
+      console.error("Greska prilikom ucitavanja:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleFavorite = async (dogadjajId, isCurrentlyFavorite) => {
+    try {
+      if (isCurrentlyFavorite) {
+        await api.delete(`/users/dogadjaji/ukloni-iz-omiljenih/${dogadjajId}`);
+      } else {
+        await api.post(`/users/dogadjaji/dodaj-u-omiljene`, {
+          dogadjaj_id: dogadjajId,
+        });
+      }
+
+      setDogadjaji((prev) =>
+        prev.map((d) =>
+          d.id === dogadjajId ? { ...d, omiljeni: !isCurrentlyFavorite } : d,
+        ),
+      );
+    } catch (error) {
+      console.error("Greška sa favoritima:", error);
+    }
+  };
+
+
+  const fetchRangLista = async (dogadjajId) => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/dogadjaji/${dogadjajId}/rang`);
+      setPodaci(response.data.data);
+      const poruka = response.data.message;
+      const naziv = poruka.match(/"([^"]+)"/)?.[1] || "Rezultati Kola";
+      setNaslovDogadjaja(naziv);
+    } catch (error) {
+      console.error("Greška pri učitavanju:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  return {
+    dogadjaji,
+    error,
+    loading,
+    paginationMeta,
+    currentPage,
+    setCurrentPage,
+    filters,
+    updateFilters,
+    searchTerm,
+    podaci,
+    naslovDogadjaja,
+    setSearchTerm,
+    toggleFavorite,
+    fetchDogadjaji,
+    fetchRangLista,
+    
+  };
+};

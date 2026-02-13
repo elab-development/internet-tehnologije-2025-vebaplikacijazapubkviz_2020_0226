@@ -1,6 +1,9 @@
 import React from "react";
 
-const TeamRow = ({ index, logo, name, score }) => {
+
+const TeamRow = ({ index, tim }) => {
+  const { logo, naziv_tima: name, score } = tim;
+
   const getRankStyle = (idx) => {
     if (idx === 0)
       return "bg-yellow-400 text-yellow-900 shadow-lg shadow-yellow-200";
@@ -8,6 +11,8 @@ const TeamRow = ({ index, logo, name, score }) => {
     if (idx === 2) return "bg-amber-600 text-white";
     return "bg-gray-100 text-gray-400";
   };
+
+
 
   return (
     <tr className="group border-b border-gray-50 last:border-0 hover:bg-indigo-50/50 transition-all">
@@ -28,13 +33,12 @@ const TeamRow = ({ index, logo, name, score }) => {
               src={logo}
               alt={name}
               className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md group-hover:scale-110 transition-transform"
-              onError={(e) =>
-                (e.target.src = "https://via.placeholder.com/150")
-              }
             />
           </div>
           <div>
-            <p className="text-xl font-black uppercase italic tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors">
+            <p
+              className="cursor-pointer text-xl font-black uppercase italic tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors"
+            >
               {name}
             </p>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -45,13 +49,15 @@ const TeamRow = ({ index, logo, name, score }) => {
       </td>
 
       <td className="p-6 text-right">
-        <div className="inline-flex flex-col items-end">
-          <span className="text-4xl font-black text-gray-900 tabular-nums leading-none">
-            {score}
-          </span>
-          <span className="text-[9px] font-black uppercase text-indigo-500 mt-1 tracking-tighter">
-            Points
-          </span>
+        <div className="flex items-center justify-end gap-4">
+            <div className="inline-flex flex-col items-end">
+              <span className="text-4xl font-black text-gray-900 tabular-nums leading-none">
+                {score}
+              </span>
+              <span className="text-[9px] font-black uppercase text-indigo-500 mt-1 tracking-tighter">
+                Points
+              </span>
+            </div>
         </div>
       </td>
     </tr>

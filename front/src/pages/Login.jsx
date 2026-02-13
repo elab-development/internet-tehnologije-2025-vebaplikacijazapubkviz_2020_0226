@@ -1,44 +1,25 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import api from "../api";
+import { Link } from "react-router-dom";
 import FormInput from "../components/FormInput";
+import Button from "../components/Button";
+import { useAuth } from "../hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  const handleLogin = async (credentials = null) => {
-    setLoading(true);
-    setError("");
+  const { login, loading, error } = useAuth();
 
-    const loginData = credentials || { email, password };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    login(email, password);
+  };
 
-    try {
-      const response = await api.post("/login", loginData);
-
-      if (response.data.success === false) {
-        setError(response.data.message || "Pogresni podaci.");
-        return;
-      }
-
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("role", response.data.data.role);
-      localStorage.setItem("username", response.data.data.username);
-      navigate("/sezone");
-    } catch (err) {
-      console.error("Login Error:", err);
-
-      if (err.response) {
-        setError(err.response.data.message || "Neispravni kredencijali.");
-      } else {
-        setError("Server nije dostupan. Proverite vezu.");
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleGuestLogin = () => {
+    login(null, null, {
+      email: "gledalac@gmail.com",
+      password: "gledalac123",
+    });
   };
 
   return (
@@ -60,13 +41,7 @@ const Login = () => {
             </div>
           )}
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleLogin();
-            }}
-            className="space-y-6"
-          >
+          <form onSubmit={handleSubmit} className="space-y-6">
             <FormInput
               label="Email Adresa"
               type="email"
@@ -85,27 +60,17 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <button
-              disabled={loading}
-              className="group relative w-full overflow-hidden rounded-[1.5rem] bg-gray-900 py-5 text-xs font-black uppercase tracking-[0.3em] text-white transition-all hover:bg-indigo-600 active:scale-[0.98] disabled:bg-gray-200"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                {loading ? "Provera..." : "Prijavi se"}
-              </span>
-            </button>
+            <Button type="submit" loading={loading} className="w-full">
+              Prijavi se
+            </Button>
 
-            <button
-              type="button"
-              onClick={() =>
-                handleLogin({
-                  email: "gledalac@gmail.com",
-                  password: "gledalac123",
-                })
-              }
-              className="w-full rounded-[1.5rem] border-2 border-gray-100 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 transition-all hover:border-indigo-100 hover:text-indigo-600 active:scale-[0.98]"
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={handleGuestLogin}
             >
               Nastavi kao gost
-            </button>
+            </Button>
           </form>
           <div className="mt-8 text-center">
             <p className="text-xs font-bold text-gray-400 uppercase tracking-tight">

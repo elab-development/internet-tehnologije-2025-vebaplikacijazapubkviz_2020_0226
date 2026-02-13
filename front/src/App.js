@@ -11,6 +11,7 @@ import Sezone from "./pages/Sezone";
 import Dogadjaji from "./pages/Dogadjaji";
 import RangListaSezone from "./pages/RangListaSezone";
 import RangListaDogadjaja from "./pages/RangListaDogadjaja";
+import KreiranjeSezone from "./pages/KreiranjeSezone";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             />
              <Route path="/dogadjaj/:id/rang" element={<RangListaDogadjaja />} />
             <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/kreiraj-sezonu" element={<KreiranjeSezone />} />
           </Routes>
         </main>
       </div>

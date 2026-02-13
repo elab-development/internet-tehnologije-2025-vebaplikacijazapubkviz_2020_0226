@@ -8,6 +8,8 @@ import Loader from "../components/Loader";
 import Pagination from "../components/Pagination";
 import EmptyState from "../components/EmptyState";
 import { useSezone } from "../hooks/useSezone";
+import { useAuth } from "../hooks/useAuth";
+import Button from "../components/Button";
 
 const Sezone = () => {
   const navigate = useNavigate();
@@ -23,11 +25,12 @@ const Sezone = () => {
     fetchSezone,
   } = useSezone();
 
-
-
   useEffect(() => {
     fetchSezone();
   }, [filters, currentPage]);
+
+  const { role } = useAuth();
+  const isAdmin = role === "moderator";
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -40,6 +43,16 @@ const Sezone = () => {
             highlight="Sezone"
             subtitle="Pregled Takmicenja"
           />
+
+          {isAdmin && (
+            <Button
+              variant="primary"
+              onClick={() => navigate("/kreiraj-sezonu")}
+            >
+              + Nova Sezona
+            </Button>
+          )}
+
           <div className="flex flex-wrap items-end gap-4 bg-white p-6 rounded-[2.5rem] shadow-[0_10px_30px_rgba(0,0,0,0.02)] border border-gray-100">
             <div className="w-40">
               <FormInput

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../api";
+import { useNavigate } from "react-router-dom";
 
 export const useSezone = () => {
   const [sezone, setSezone] = useState([]);
@@ -11,6 +12,7 @@ export const useSezone = () => {
 
   const [podaci, setPodaci] = useState([]);
   const [sezonaInfo, setSezonaInfo] = useState("");
+  const navigate = useNavigate();
 
   const updateFilters = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -50,6 +52,26 @@ export const useSezone = () => {
     }
   };
 
+
+  
+  const createSezona = async (formData) => {
+    setLoading(true);
+    setError("");
+    try {
+      await api.post("/sezone", formData);
+      navigate("/sezone");
+    } catch (err) {
+      if (err.response?.status === 422) {
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        setError(firstError);
+      } else {
+        setError("Došlo je do greške prilikom kreiranja sezone.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     sezone,
     loading,
@@ -62,6 +84,7 @@ export const useSezone = () => {
     podaci,
     sezonaInfo,
     fetchSezone,
+    createSezona,
     fetchRangLista,
   };
 };

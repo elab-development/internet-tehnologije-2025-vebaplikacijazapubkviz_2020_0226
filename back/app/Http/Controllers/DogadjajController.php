@@ -121,6 +121,95 @@ class DogadjajController extends Controller
         }
     }
 
+
+     public function store(Request $request)
+    {
+        $dogadjaj = null;
+
+        try {
+           
+            if (Auth::user()->role !== 'moderator') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Neautorizovan pristup. Samo moderatori mogu kreirati dogadjaj.',
+                ], 401);
+            }
+
+            
+            $request->validate([
+                'naziv' => 'required|string|max:255',
+                'datumOdrzavanja' => 'required|date|after:now', 
+                'sezona_id' => 'required|integer|exists:sezone,id', 
+            ], [
+               
+                'naziv.required' => 'Morate uneti naziv događaja.',
+                'naziv.string' => 'Naziv mora biti tekstualnog formata.',
+                'naziv.max' => 'Naziv ne može biti duži od 255 karaktera.',
+
+                'datumOdrzavanja.required' => 'Datum održavanja je obavezan.',
+                'datumOdrzavanja.date' => 'Uneti datum nije u ispravnom formatu.',
+                'datumOdrzavanja.after' => 'Događaj se ne može zakazati u prošlosti.',
+
+                'sezona_id.required' => 'Događaj mora biti povezan sa određenom sezonom.',
+                'sezona_id.integer' => 'ID sezone mora biti ceo broj.',
+                'sezona_id.exists' => 'Izabrana sezona ne postoji u bazi podataka.',
+            ]);
+
+            
+            $sezona = Sezona::findOrFail($request->sezona_id);
+            $datumOdrzavanja = Carbon::parse($request->datumOdrzavanja); 
+           
+            if ($sezona->kraj->isPast()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ne moze se kreirati dogadjaj za izabranu sezonu jer je ona zavrsena.',
+                ], 400); 
+            }
+
+          
+            if ($datumOdrzavanja->isBefore($sezona->pocetak) || $datumOdrzavanja->isAfter($sezona->kraj)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datum dogadjaja za izabranu sezonu mora biti izmedju pocetka: (' . $sezona->pocetak->format('d-m-Y') . ') i kraja: (' . $sezona->kraj->format('d-m-Y') . ') .',
+                ], 400); 
+            }
+
+          
+            DB::transaction(function () use ($request, &$dogadjaj) {
+                
+                $dogadjaj = Dogadjaj::create([
+                    'naziv' => $request->naziv,
+                    'datumOdrzavanja' => $request->datumOdrzavanja,
+                    'sezona_id' => $request->sezona_id,
+                ]);
+
+            }); 
+
+          
+            if ($dogadjaj) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dogadjaj uspesno dodat za izabranu sezonu.',
+                    'data' => new DogadjajResource($dogadjaj),
+                ], 201); 
+
+            }
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Greška pri validaciji unosa.',
+                'errors' => $e->errors(),
+            ], 422); 
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Došlo je do greške prilikom obrade zahteva.',
+                'error' => $e->getMessage(),
+            ], 500); 
+        }
+    }
    
 
 

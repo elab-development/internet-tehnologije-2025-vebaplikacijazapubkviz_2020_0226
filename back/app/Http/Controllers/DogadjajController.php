@@ -210,6 +210,65 @@ class DogadjajController extends Controller
             ], 500); 
         }
     }
+
+     public function azuriranjeRezultata(Request $request)
+    {
+        try {
+          
+            if ( Auth::user()->role !== 'moderator') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nemate pristup za ovu metodu. Samo moderatori mogu da azuriraju rezultat dogadjaja pojedinog tima.',
+                ], 401);
+            }
+
+            $request->validate([
+                'dogadjaj_id' => 'required|integer|exists:dogadjaji,id',
+                'tim_id'      => 'required|integer|exists:timovi,id',
+                'score'       => 'required|integer|min:0',
+            ]);
+
+            $dogadjajId = $request->dogadjaj_id;
+            $timId = $request->tim_id;
+            $noviScore = $request->score;
+            $dogadjaj = Dogadjaj::findOrFail($dogadjajId);
+
+            if (!$dogadjaj->timovi()->where('tim_id', $timId)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Izabrani tim nije deo ovog dogadjaja.',
+                ], 404);
+            }
+
+            DB::transaction(function () use ($dogadjaj, $timId, $noviScore) {
+                $dogadjaj->timovi()->updateExistingPivot($timId, [
+                    'score' => $noviScore
+                ]);
+
+            }); 
+           
+            $tim = $dogadjaj->timovi()->where('tim_id', $timId)->first();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Rezultat je uspešno ažuriran.',
+                'data' => new DogadjajTimResource($tim),
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Greška pri validaciji.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Došlo je do greške prilikom ažuriranja rezultata.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
    
 
 

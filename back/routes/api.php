@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::delete('users/dogadjaji/ukloni-iz-omiljenih/{id}',[TimController::class,'ukloniIzOmiljenih']);
      Route::post('/sezone',[SezonaController::class,'store']);
      Route::post('/dogadjaji',[DogadjajController::class,'store']);
+     Route::put('/timovi/dogadjaj/azuriraj-rezultat', [DogadjajController::class, 'azuriranjeRezultata']);
 
 
 

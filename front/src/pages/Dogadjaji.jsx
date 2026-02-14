@@ -33,7 +33,7 @@ const Dogadjaji = () => {
   } = useDogadjaji(id);
 
   const { role } = useAuth();
-
+    const isAdmin = role === "moderator";
 
   useEffect(() => {
     fetchDogadjaji(state?.dogadjaji);
@@ -52,7 +52,18 @@ const Dogadjaji = () => {
           highlight={`#${id}`}
           subtitle={`Trajanje: ${state?.period || "..."} `}
         >
-        
+          {isAdmin && state?.status === "aktivna" && (
+            <Button
+              variant="primary"
+              onClick={() =>
+                navigate(`/sezone/${id}/kreiraj-dogadjaj`, {
+                  state,
+                })
+              }
+            >
+              + Novi Dogadjaj
+            </Button>
+          )}
           <Button
             onClick={() => navigate(`/sezone/${id}/rang-lista`)}
             variant="outline"

@@ -83,6 +83,30 @@ export const useDogadjaji = (sezonaId) => {
     }
   };
 
+  
+  const createDogadjaj = async (formData) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      await api.post("/dogadjaji", formData);
+      return true;
+    } catch (err) {
+      if (err.response?.data?.errors) {
+        const firstError = Object.values(err.response.data.errors)[0][0];
+        setError(firstError);
+        
+      } else {
+        setError(
+          err.response?.data?.message ||
+            "Došlo je do greške. Pokušajte ponovo.",
+        );
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     dogadjaji,
@@ -100,6 +124,6 @@ export const useDogadjaji = (sezonaId) => {
     toggleFavorite,
     fetchDogadjaji,
     fetchRangLista,
-    
+    createDogadjaj
   };
 };

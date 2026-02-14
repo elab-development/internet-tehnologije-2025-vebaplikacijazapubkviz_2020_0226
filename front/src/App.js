@@ -12,7 +12,7 @@ import Dogadjaji from "./pages/Dogadjaji";
 import RangListaSezone from "./pages/RangListaSezone";
 import RangListaDogadjaja from "./pages/RangListaDogadjaja";
 import KreiranjeSezone from "./pages/KreiranjeSezone";
-
+import KreiranjeDogadjaja from "./pages/KreiranjeDogadjaja";
 function App() {
   return (
     <Router>
@@ -30,6 +30,10 @@ function App() {
              <Route path="/dogadjaj/:id/rang" element={<RangListaDogadjaja />} />
             <Route path="*" element={<Navigate to="/" />} />
             <Route path="/kreiraj-sezonu" element={<KreiranjeSezone />} />
+            <Route
+              path="/sezone/:id/kreiraj-dogadjaj"
+              element={<KreiranjeDogadjaja />}
+            />
           </Routes>
         </main>
       </div>

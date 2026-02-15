@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::post('/sezone',[SezonaController::class,'store']);
      Route::post('/dogadjaji',[DogadjajController::class,'store']);
      Route::put('/timovi/dogadjaj/azuriraj-rezultat', [DogadjajController::class, 'azuriranjeRezultata']);
+     Route::get('/timovi/statistika', [TimController::class, 'statistika']);
 
 
 

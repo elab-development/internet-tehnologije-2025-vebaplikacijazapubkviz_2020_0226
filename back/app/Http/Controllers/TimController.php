@@ -138,7 +138,130 @@ class TimController extends Controller
 
 
 
+     public function statistika()
+    {
+        try {
+            $user = Auth::user();
+            if ($user->role !== 'tim') {
+                return response()->json(
+                    ['success' => false,
+                     'message' => 'Samo timovi mogu videti svoju statistiku.'], 403);
+            }
+
+            $tim = Tim::where('user_id', $user->id)->first();
+            if (!$tim) {
+                return response()->json(
+                    ['success' => false, 
+                    'message' => 'Tim nije pronađen.'], 404);
+            }
+
+            $timId = $tim->id;
+
+           
+            $opstaStatistika = DB::table('dogadjaj_tim')
+                ->where('tim_id', $timId)
+                ->select(
+                    DB::raw('COUNT(dogadjaj_id) as ukupan_broj_dogadjaja'),
+                    DB::raw('SUM(score) as ukupan_broj_poena'),
+                    DB::raw('MAX(score) as maksimalni_poeni'),
+                    DB::raw('AVG(score) as prosek_poena')
+                )->first();
+
+           
+            $sezoneIds = DB::table('dogadjaji')
+                ->join('dogadjaj_tim', 'dogadjaji.id', '=', 'dogadjaj_tim.dogadjaj_id')
+                ->where('dogadjaj_tim.tim_id', $timId)
+                ->distinct()
+                ->pluck('sezona_id');
+
+            $statistikaPoSezonama = [];
+
+            foreach ($sezoneIds as $sId) {
+                $sezona = Sezona::find($sId);
+                
+                
+                $sezonskaStat = DB::table('dogadjaj_tim')
+                    ->join('dogadjaji', 'dogadjaj_tim.dogadjaj_id', '=', 'dogadjaji.id')
+                    ->where('dogadjaji.sezona_id', $sId)
+                    ->where('dogadjaj_tim.tim_id', $timId)
+                    ->select(
+                        DB::raw('COUNT(dogadjaj_tim.dogadjaj_id) as broj_dogadjaja'),
+                        DB::raw('SUM(dogadjaj_tim.score) as suma_poena'),
+                        DB::raw('MAX(dogadjaj_tim.score) as max_poena'),
+                        DB::raw('AVG(dogadjaj_tim.score) as avg_poena')
+                    )->first();
+
+              
+                $pobedeUSezoni = $this->izracunajPobede($timId, $sId);
+
+               
+                $pozicija = $this->izracunajPozicijuUSezoni($timId, $sId);
+
+                $statistikaPoSezonama[] = [
+                    "sezona_id" => $sezona->id,
+                    "pocetak" => $sezona->pocetak->format('d.m.Y'),
+                    "kraj" => $sezona->kraj->format('d.m.Y'),
+                    "broj_dogadjaja_na_kojima_ucestvujem" => $sezonskaStat->broj_dogadjaja,
+                    "ukupan_broj_poena_ostvaren_u_sezoni" => (int)$sezonskaStat->suma_poena,
+                    "maksimalni_broj_poena_na_nekom_dogadjaju" => (int)$sezonskaStat->max_poena,
+                    "prosecan_broj_poena_po_dogadjaju" => round($sezonskaStat->avg_poena, 2),
+                    "broj_osvojenih_dogadjaja" => $pobedeUSezoni,
+                    "rezultat_na_rang_listi_sezone" => $pozicija
+                ];
+            }
+    
+            $ukupnoPobeda = $this->izracunajPobede($timId);
+
+            return response()->json([
+                "success" => true,
+                "data" => [
+                    "ukupan_broj_dogadjaja" => $opstaStatistika->ukupan_broj_dogadjaja,
+                    "sezone" => $statistikaPoSezonama,
+                    "ukupan_broj_osvojenih_dogadjaja" => $ukupnoPobeda,
+                    "maksimalni_broj_poena_ostvaren_na_dogadjaju" => (int)$opstaStatistika->maksimalni_poeni,
+                    "prosecan_broj_poena_po_dogadjaju" => round($opstaStatistika->prosek_poena, 2),
+                    "prosecan_broj_poena_po_sezoni" => count($statistikaPoSezonama) > 0 
+                        ? round($opstaStatistika->ukupan_broj_poena / count($statistikaPoSezonama), 2) 
+                        : 0
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
    
+
+     private function izracunajPobede($timId, $sezonaId = null)
+    {
+        $query = DB::table('dogadjaj_tim as dt1')
+            ->join('dogadjaji', 'dt1.dogadjaj_id', '=', 'dogadjaji.id')
+            ->where('dt1.tim_id', $timId);
+
+        if ($sezonaId) {
+            $query->where('dogadjaji.sezona_id', $sezonaId);
+        }
+        return $query->whereNotExists(function ($q) {
+            $q->select(DB::raw(1))
+                ->from('dogadjaj_tim as dt2')
+                ->whereRaw('dt2.dogadjaj_id = dt1.dogadjaj_id')
+                ->whereRaw('dt2.score > dt1.score');
+        })->count();
+    }
+
+
+    private function izracunajPozicijuUSezoni($timId, $sezonaId)
+    {
+        $rangLista = DB::table('dogadjaj_tim')
+            ->join('dogadjaji', 'dogadjaj_tim.dogadjaj_id', '=', 'dogadjaji.id')
+            ->where('dogadjaji.sezona_id', $sezonaId)
+            ->select('tim_id', DB::raw('SUM(score) as total_score'))
+            ->groupBy('tim_id')
+            ->orderBy('total_score', 'desc')
+            ->get();
+
+        return $rangLista->search(fn($item) => $item->tim_id == $timId) + 1;
+    }
 
 
 }

@@ -108,6 +108,32 @@ export const useDogadjaji = (sezonaId) => {
     }
   };
 
+
+  const updateScore = async (timId, dogadjajId, noviScore) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("tim_id", Number(timId));
+      formData.append("dogadjaj_id", Number(dogadjajId));
+      formData.append("score", Number(noviScore));
+      formData.append("_method", "PUT");
+
+      await api.post("/timovi/dogadjaj/azuriraj-rezultat", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      return { success: true };
+    } catch (err) {
+      const errorMsg = err.response?.data?.errors
+        ? Object.values(err.response.data.errors)[0][0]
+        : "Greška pri ažuriranju rezultata.";
+
+      return { success: false, error: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     dogadjaji,
     error,
@@ -124,6 +150,7 @@ export const useDogadjaji = (sezonaId) => {
     toggleFavorite,
     fetchDogadjaji,
     fetchRangLista,
-    createDogadjaj
+    createDogadjaj,
+    updateScore,
   };
 };

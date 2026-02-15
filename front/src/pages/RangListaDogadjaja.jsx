@@ -7,12 +7,29 @@ import DataTable from "../components/DataTable";
 import TeamRow from "../components/TeamRow";
 import Button from "../components/Button";
 import { useDogadjaji } from "../hooks/useDogadjaji";
+import { useAuth } from "../hooks/useAuth";
 
 const RangListaDogadjaja = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { role } = useAuth();
 
-  const { podaci, naslovDogadjaja, fetchRangLista, loading } = useDogadjaji();
+  const { podaci, naslovDogadjaja, fetchRangLista, loading,updateScore } = useDogadjaji();
+    const isAdmin = role === "moderator";
+
+
+  
+  const handleUpdateScore = async (timId, noviScore) => {
+    const result = await updateScore(timId, id, noviScore);
+
+    if (result.success) {
+      fetchRangLista(id);
+      return true;
+    } else {
+      alert(result.error);
+    }
+  };
+
 
   useEffect(() => {
     fetchRangLista(id);
@@ -43,6 +60,8 @@ const RangListaDogadjaja = () => {
                 key={tim.tim_id || index}
                 index={index}
                 tim={tim}
+                 isAdmin={isAdmin}
+                onUpdate={handleUpdateScore}
               />
             ))}
           </DataTable>

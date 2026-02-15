@@ -22,6 +22,7 @@ class DogadjajTimResource extends JsonResource
                   ?? ($this->pivot ? $this->pivot->dogadjaj_id : null);
 
     return [
+         'tim_id' => $this->id,
         'naziv_tima' => $this->naziv,
         'logo' => $this->logo ? asset($this->logo) : null,
         'score' => $this->whenPivotLoaded('dogadjaj_tim', function () {

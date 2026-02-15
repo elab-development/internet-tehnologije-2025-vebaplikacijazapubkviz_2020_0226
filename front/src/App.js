@@ -13,6 +13,7 @@ import RangListaSezone from "./pages/RangListaSezone";
 import RangListaDogadjaja from "./pages/RangListaDogadjaja";
 import KreiranjeSezone from "./pages/KreiranjeSezone";
 import KreiranjeDogadjaja from "./pages/KreiranjeDogadjaja";
+import StatistikaTima from "./pages/StatistikaTima";
 function App() {
   return (
     <Router>
@@ -34,6 +35,7 @@ function App() {
               path="/sezone/:id/kreiraj-dogadjaj"
               element={<KreiranjeDogadjaja />}
             />
+            <Route path="/statistika" element={<StatistikaTima />} />
           </Routes>
         </main>
       </div>

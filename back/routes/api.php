@@ -28,7 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('/timovi/statistika', [TimController::class, 'statistika']);
      Route::get('/dogadjaji/{dogadjaj_id}/timovi/{tim_id}/clanovi', [ClanController::class, 'ucesceNaDogadjaju'])->name('clanovi.ucesce');
      Route::get('/clanovi/svi',[ClanController::class,'prikazSvihClanova']);
-
+     Route::post('/dogadjaji/prijava', [TimController::class, 'prijavaTima']);
+     Route::put('/tim/dogadjaj/{dogadjaj_id}/promena-clanova-za-dogadjaj',[TimController::class,'promenaClanovaZaDogadjaj']);
 
 
 

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Clan extends Model
 {
+    use HasFactory;
     protected $table = 'clanovi';
     protected $fillable = ['ime', 'prezime'];
 

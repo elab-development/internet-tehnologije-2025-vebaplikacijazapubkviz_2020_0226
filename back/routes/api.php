@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SezonaController;
 use App\Http\Controllers\DogadjajController;
 use App\Http\Controllers\TimController;
+use App\Http\Controllers\ClanController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -25,6 +26,8 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::post('/dogadjaji',[DogadjajController::class,'store']);
      Route::put('/timovi/dogadjaj/azuriraj-rezultat', [DogadjajController::class, 'azuriranjeRezultata']);
      Route::get('/timovi/statistika', [TimController::class, 'statistika']);
+     Route::get('/dogadjaji/{dogadjaj_id}/timovi/{tim_id}/clanovi', [ClanController::class, 'ucesceNaDogadjaju'])->name('clanovi.ucesce');
+     Route::get('/clanovi/svi',[ClanController::class,'prikazSvihClanova']);
 
 
 

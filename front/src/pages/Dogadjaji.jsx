@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
@@ -7,6 +7,7 @@ import PageHeader from "../components/PageHeader";
 import DogadjajCard from "../components/DogadjajCard";
 import Loader from "../components/Loader";
 import Pagination from "../components/Pagination";
+import TeamMembersModal from "../components/TeamMembersModal";
 import Button from "../components/Button";
 import EmptyState from "../components/EmptyState";
 import { useDogadjaji } from "../hooks/useDogadjaji";
@@ -17,6 +18,8 @@ const Dogadjaji = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
 
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [selectedDogadjajId, setSelectedDogadjajId] = useState(null);
 
   const {
     dogadjaji,
@@ -32,8 +35,9 @@ const Dogadjaji = () => {
     fetchDogadjaji,
   } = useDogadjaji(id);
 
-  const { role } = useAuth();
-    const isAdmin = role === "moderator";
+  const { role, loggedTimId } = useAuth();
+
+  const isAdmin = role === "moderator";
 
   useEffect(() => {
     fetchDogadjaji(state?.dogadjaji);
@@ -101,6 +105,10 @@ const Dogadjaji = () => {
                     key={d.id}
                     d={d}
                     userRole={role}
+                    onSignupClick={() => {
+                      setSelectedDogadjajId(d.id);
+                      setIsSignUpOpen(true);
+                    }}
                     onToggleFavorite={() => toggleFavorite(d.id, d.omiljeni)}
                     onNavigateRang={() => navigate(`/dogadjaj/${d.id}/rang`)}
                   />
@@ -113,6 +121,14 @@ const Dogadjaji = () => {
           </>
         )}
       </div>
+      {isSignUpOpen && (
+        <TeamMembersModal
+          onClose={() => setIsSignUpOpen(false)}
+          dogadjajId={selectedDogadjajId}
+          timId={loggedTimId}
+          mode="signup"
+        />
+      )}
     </div>
   );
 };

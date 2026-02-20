@@ -9,11 +9,13 @@ use App\Http\Controllers\SezonaController;
 use App\Http\Controllers\DogadjajController;
 use App\Http\Controllers\TimController;
 use App\Http\Controllers\ClanController;
+use App\Http\Controllers\GoogleCalendarController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/google/callback', [GoogleCalendarController::class, 'callback']);
 
 Route::middleware('auth:sanctum')->group(function () {
      Route::get('/sezone',[SezonaController::class,'index']);
@@ -30,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('/clanovi/svi',[ClanController::class,'prikazSvihClanova']);
      Route::post('/dogadjaji/prijava', [TimController::class, 'prijavaTima']);
      Route::put('/tim/dogadjaj/{dogadjaj_id}/promena-clanova-za-dogadjaj',[TimController::class,'promenaClanovaZaDogadjaj']);
+     Route::get('/google/auth-url', [GoogleCalendarController::class, 'getAuthUrl']);
+     Route::post('/google/store-event', [GoogleCalendarController::class, 'storeEvent']);
 
 
 

@@ -12,6 +12,7 @@ const Navbar = () => {
     tim: [
       { name: "Sve Sezone", path: "/sezone" },
       { name: "Statistika Tima", path: "/statistika" },
+      { name: "Lokacija", path: "/lokacija" },
     ],
 
     gledalac: [{ name: "Sve Sezone", path: "/sezone" }],

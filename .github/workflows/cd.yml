@@ -50,7 +50,7 @@ jobs:
         with:
           registry: ghcr.io
           username: anavil18
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.MOJ_GITHUB_TOKEN }}
 
       - name: Build & push backend image
         uses: docker/build-push-action@v5

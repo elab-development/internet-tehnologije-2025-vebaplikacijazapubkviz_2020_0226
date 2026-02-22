@@ -3,6 +3,7 @@ import Button from "./Button";
 const DogadjajCard = ({
   d,
   userRole,
+  onSignupClick,
   onToggleFavorite,
   onNavigateRang,
 }) => (
@@ -38,6 +39,14 @@ const DogadjajCard = ({
               ❤️ Omiljeni
             </span>
           )}
+          {userRole === "tim" &&
+            (d.prijavljen ? (
+              <span className="bg-emerald-50 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-600 border border-emerald-100">
+                ✓ Prijavljeni ste
+              </span>
+            ) : (
+              <Button onClick={onSignupClick}>Prijavi Tim</Button>
+            ))}
         </div>
       </div>
     </div>

@@ -8,11 +8,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SezonaController;
 use App\Http\Controllers\DogadjajController;
 use App\Http\Controllers\TimController;
+use App\Http\Controllers\ClanController;
+use App\Http\Controllers\GoogleCalendarController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/google/callback', [GoogleCalendarController::class, 'callback']);
 
 Route::middleware('auth:sanctum')->group(function () {
      Route::get('/sezone',[SezonaController::class,'index']);
@@ -25,7 +28,12 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::post('/dogadjaji',[DogadjajController::class,'store']);
      Route::put('/timovi/dogadjaj/azuriraj-rezultat', [DogadjajController::class, 'azuriranjeRezultata']);
      Route::get('/timovi/statistika', [TimController::class, 'statistika']);
-
+     Route::get('/dogadjaji/{dogadjaj_id}/timovi/{tim_id}/clanovi', [ClanController::class, 'ucesceNaDogadjaju'])->name('clanovi.ucesce');
+     Route::get('/clanovi/svi',[ClanController::class,'prikazSvihClanova']);
+     Route::post('/dogadjaji/prijava', [TimController::class, 'prijavaTima']);
+     Route::put('/tim/dogadjaj/{dogadjaj_id}/promena-clanova-za-dogadjaj',[TimController::class,'promenaClanovaZaDogadjaj']);
+     Route::get('/google/auth-url', [GoogleCalendarController::class, 'getAuthUrl']);
+     Route::post('/google/store-event', [GoogleCalendarController::class, 'storeEvent']);
 
 
 

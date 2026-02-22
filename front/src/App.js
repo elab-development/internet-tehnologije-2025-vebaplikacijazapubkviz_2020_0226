@@ -14,6 +14,7 @@ import RangListaDogadjaja from "./pages/RangListaDogadjaja";
 import KreiranjeSezone from "./pages/KreiranjeSezone";
 import KreiranjeDogadjaja from "./pages/KreiranjeDogadjaja";
 import StatistikaTima from "./pages/StatistikaTima";
+import QuizLocation from "./pages/QuizLocation";
 function App() {
   return (
     <Router>
@@ -36,6 +37,7 @@ function App() {
               element={<KreiranjeDogadjaja />}
             />
             <Route path="/statistika" element={<StatistikaTima />} />
+             <Route path="/lokacija" element={<QuizLocation />} />
           </Routes>
         </main>
       </div>
